@@ -3,10 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Checkout - NovaGadgets</title>
+    <title>Checkout - WaveGadgets</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <script>window.location.replace("/checkout");</script>
+    <header class="topbar"><div class="topbar__inner"><a class="brand" href="/"><span class="brand__mark">W</span><span class="brand__text">WaveGadgets</span></a><div class="topbar__actions"><a class="nav__link" href="/">Continue Shopping</a></div></div></header>
+    <main class="container checkoutLayout fadeInUp">
+      <section class="card"><h2 class="card__title">Order Summary</h2><div id="checkoutItems" class="checkoutItems"></div><div class="lineRow"><span>Subtotal</span><strong id="checkoutSubtotal">₹0</strong></div><div class="mutedText" id="checkoutEmpty" hidden>Your cart is empty.</div></section>
+      <section class="card">
+        <h2 class="card__title">Shipping Details</h2>
+        <form id="checkoutForm" class="form">
+          <div class="field"><label for="shipFullName">Full Name</label><input id="shipFullName" name="fullName" type="text" required /></div>
+          <div class="field"><label for="shipAddress1">Address line 1</label><input id="shipAddress1" name="addressLine1" type="text" required /></div>
+          <div class="field"><label for="shipAddress2">Address line 2 (optional)</label><input id="shipAddress2" name="addressLine2" type="text" /></div>
+          <div class="formRow2"><div class="field"><label for="shipCity">City</label><input id="shipCity" name="city" type="text" required /></div><div class="field"><label for="shipState">State</label><input id="shipState" name="state" type="text" required /></div></div>
+          <div class="formRow2"><div class="field"><label for="shipZip">ZIP</label><input id="shipZip" name="zip" type="text" required /></div><div class="field"><label for="shipCountry">Country</label><input id="shipCountry" name="country" type="text" value="India" /></div></div>
+          <button class="primaryBtn" type="submit">Place Order</button>
+          <div class="form__error" id="checkoutError" role="alert"></div>
+        </form>
+        <div id="checkoutSuccess" class="successBox" hidden><h3>Order placed!</h3><div id="checkoutSuccessText" class="mutedText"></div></div>
+      </section>
+    </main>
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+    <script src="/api.js"></script>
+    <script src="/checkout.js"></script>
   </body>
 </html>

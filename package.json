@@ -1,7 +1,7 @@
 {
-  "name": "clothing-store",
+  "name": "gadget-store",
   "version": "1.0.0",
-  "description": "Clothing shopping website (Express + MongoDB + vanilla JS frontend)",
+  "description": "Gadget shopping website (Express + MongoDB + vanilla JS frontend)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

@@ -1,6 +1,6 @@
-# Clothing Store (Express + MongoDB + Vanilla JS)
+# Gadget Store (Express + MongoDB + Vanilla JS)
 
-This is a complete clothing shopping website with:
+This is a complete gadget shopping website with:
 - Responsive homepage (navbar, hero banner, category filters, product grid)
 - Login/Register
 - Cart drawer with dynamic add/update/remove
@@ -10,10 +10,10 @@ This is a complete clothing shopping website with:
 ## Prerequisites
 1. Install **Node.js** (LTS recommended)
 2. Install and start **MongoDB**
-   - Default URI used in `.env`: `mongodb://127.0.0.1:27017/clothing_store`
+   - Default URI used in `.env`: `mongodb://127.0.0.1:27017/gadget_store`
 
 ## Setup
-1. Open PowerShell in this folder: `clothing-store`
+1. Open PowerShell in this folder: `gadget-store`
 2. Create your `.env` file:
    - Copy `.env.example` -> `.env`
    - Set `JWT_SECRET` to a long random string
@@ -30,10 +30,9 @@ This is a complete clothing shopping website with:
 
 ## Quick diagnostics (if you see 500 errors)
 Run these in PowerShell to see the real API response:
-1. `Invoke-RestMethod http://localhost:3000/api/debug/health`
+1. `Invoke-RestMethod http://localhost:3000/api/health`
 2. `Invoke-RestMethod http://localhost:3000/api/products`
 
 ## Notes
 - Product images are loaded from free Unsplash image endpoints (real image URLs).
 - Checkout places an order into MongoDB (no payment integration).
-

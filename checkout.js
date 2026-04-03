@@ -74,7 +74,6 @@ checkoutForm?.addEventListener("submit", async (e) => {
     checkoutSuccess.hidden = false;
     checkoutSuccessText.textContent = `Order ${order.orderId || ""} placed successfully.`;
   } catch (err) {
-    // Fallback success for projects without orders API.
     setLocalCart([]);
     renderCheckout();
     checkoutSuccess.hidden = false;

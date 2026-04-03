@@ -3,10 +3,101 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NovaGadgets - Gadget Store</title>
+    <title>WaveGadgets - Gadget Store</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <script>window.location.replace("/");</script>
+    <div class="promoStrip">Get Extra 5% Off on prepaid orders | Code: <strong>PAYDAY</strong></div>
+    <header class="topbar">
+      <div class="topbar__inner">
+        <a class="brand" href="/"><span class="brand__mark">W</span><span class="brand__text">WaveGadgets</span></a>
+        <nav class="nav">
+          <button class="nav__link nav__button is-active" data-category="All" type="button">All</button>
+          <button class="nav__link nav__button" data-category="Earbuds" type="button">Earbuds</button>
+          <button class="nav__link nav__button" data-category="Smartwatch" type="button">Smartwatch</button>
+          <button class="nav__link nav__button" data-category="Speakers" type="button">Speakers</button>
+        </nav>
+        <div class="searchWrap"><input id="searchInput" type="search" placeholder="Search 'Smartwatches'" /></div>
+        <div class="topbar__actions">
+          <a class="authButton" href="/wishlist">Wishlist <span class="cartButton__badge" id="wishlistCountBadge">0</span></a>
+          <button class="cartButton" id="openCartBtn" type="button">My Bag <span class="cartButton__badge" id="cartCountBadge">0</span></button>
+          <button class="authButton" id="authButton" type="button">Sign in</button>
+        </div>
+      </div>
+    </header>
+    <section class="hero">
+      <div class="hero__bg" id="heroBg"></div>
+      <div class="hero__content">
+        <p class="eyebrow">Payday Sale Live</p>
+        <h1>Big Deals on Earbuds, Watches and Speakers</h1>
+        <p>Discover bestsellers and newly launched gadgets with fast shipping.</p>
+        <div class="hero__ctaRow">
+          <button class="primaryBtn" id="shopNowBtn">Shop Earbuds</button>
+          <a class="secondaryBtn" href="/checkout">Quick Checkout</a>
+        </div>
+        <div class="hero__stats">
+          <div><strong>24h</strong><span>Fast dispatch</span></div>
+          <div><strong>4.8</strong><span>Customer rating</span></div>
+          <div><strong>500+</strong><span>Top gadgets</span></div>
+        </div>
+        <div class="hero__dots" id="heroDots"></div>
+      </div>
+    </section>
+    <main class="container">
+      <div class="dealsStrip">Big Deals - New launch offers every week</div>
+      <section class="shopCats">
+        <div class="shopCats__head">
+          <h3>Shop by Categories</h3>
+        </div>
+        <div class="shopCats__row">
+          <button class="shopCatBtn" data-category-target="Earbuds" type="button">🎧<span>Earbuds</span></button>
+          <button class="shopCatBtn" data-category-target="Smartwatch" type="button">⌚<span>Smartwatch</span></button>
+          <button class="shopCatBtn" data-category-target="Speakers" type="button">🔊<span>Speakers</span></button>
+          <button class="shopCatBtn" data-category-target="All" type="button">✨<span>All Deals</span></button>
+        </div>
+      </section>
+      <section class="sectionHead">
+        <h2>Explore Bestsellers</h2>
+        <p>Shop by category and discover your next favorite gadget.</p>
+      </section>
+      <section class="dealTabs" id="dealTabs">
+        <button class="dealTab is-active" data-tab-category="All" type="button">All Deals</button>
+        <button class="dealTab" data-tab-category="Earbuds" type="button">True Wireless Earbuds</button>
+        <button class="dealTab" data-tab-category="Smartwatch" type="button">Smartwatches</button>
+        <button class="dealTab" data-tab-category="Speakers" type="button">Speakers</button>
+      </section>
+      <section class="trendingSection">
+        <div class="trendingHead"><h3>Trending Picks</h3><div class="trendingBtns"><button id="trendPrev" type="button">‹</button><button id="trendNext" type="button">›</button></div></div>
+        <div class="trendingTrack" id="trendingTrack"></div>
+      </section>
+      <div class="filters">
+        <button class="filterChip is-active" data-category="All">All</button>
+        <button class="filterChip" data-category="Earbuds">Earbuds</button>
+        <button class="filterChip" data-category="Smartwatch">Smartwatch</button>
+        <button class="filterChip" data-category="Speakers">Speakers</button>
+      </div>
+      <div class="productGrid" id="productGrid"></div>
+      <div class="emptyState" id="emptyState" hidden>No products found. Try another category.</div>
+      <section class="brandRail" aria-label="Featured brands"><span>boAt</span><span>JBL</span><span>Sony</span><span>Noise</span><span>OnePlus</span><span>Mivi</span></section>
+      <section class="newsletter">
+        <div><h3>Get launch alerts in your inbox</h3><p>Be the first to know about offers, launches and price drops.</p></div>
+        <form class="newsletterForm" onsubmit="event.preventDefault()"><input type="email" placeholder="Enter your email" required /><button type="submit">Subscribe</button></form>
+      </section>
+    </main>
+    <footer class="siteFooter"><div class="siteFooter__inner"><p>© 2026 WaveGadgets. Built for gadget lovers.</p><a href="/checkout">Checkout</a></div></footer>
+    <aside class="drawer" id="cartDrawer">
+      <div class="drawer__overlay" id="cartOverlay"></div>
+      <div class="drawer__panel">
+        <div class="drawer__header"><h2>Your Cart</h2><button id="closeCartBtn">✕</button></div>
+        <div id="cartItems"></div>
+        <div class="drawer__footer"><strong id="cartTotalStrong">₹0</strong><button id="goToCheckoutBtn">Secure Checkout</button></div>
+      </div>
+    </aside>
+    <div class="modal" id="authModal"><div class="modal__overlay" id="authOverlay"></div><div class="modal__panel"><h2 id="authModalTitle">Welcome Back</h2><p class="modalSub">Sign in to save your cart and track orders.</p><form id="loginForm"><input id="loginEmail" type="email" placeholder="Email" required /><input id="loginPassword" type="password" placeholder="Password" required /><button type="submit">Login</button><div id="loginError"></div></form></div></div>
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+    <script src="/api.js"></script>
+    <script src="/auth-ui.js"></script>
+    <script src="/cart-ui.js"></script>
+    <script src="/home.js"></script>
   </body>
 </html>
