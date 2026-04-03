@@ -1,3 +1,7 @@
+/**
+ * Clothing Store (Express + MongoDB)
+ */
+
 const path = require("path");
 const express = require("express");
 const mongoose = require("mongoose");
@@ -6,6 +10,7 @@ const morgan = require("morgan");
 const dotenv = require("dotenv");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
 dotenv.config();
 
@@ -14,18 +19,50 @@ app.use(express.json());
 app.use(cors());
 app.use(morgan("dev"));
 
+process.on("unhandledRejection", (reason) => {
+  console.error("Unhandled promise rejection:", reason);
+});
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught exception:", err);
+});
+
 const PORT = process.env.PORT || 3000;
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/gadget_store";
+const NODE_ENV = process.env.NODE_ENV || "development";
+const DEBUG_ERRORS = NODE_ENV !== "production";
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/clothing_store";
 const JWT_SECRET = process.env.JWT_SECRET || "dev_secret_change_me";
 
+/* ---------------- ERROR HANDLING FIX ---------------- */
 function clientErrorStatus(err) {
   if (!err) return 500;
-  if (err.name === "CastError" || err.name === "ValidationError") return 400;
+  if (err.name === "CastError") return 400;
+  if (err.name === "ValidationError") return 400;
   if (err.code === 11000) return 409;
+
+  const msg = err.message?.toLowerCase() || "";
+
+  if (
+    err.name === "MongooseServerSelectionError" ||
+    err.name === "MongoNetworkError" ||
+    (err.name === "MongoServerError" && msg.includes("failed to connect"))
+  ) {
+    return 503;
+  }
+
+  if (
+    msg.includes("econnrefused") ||
+    msg.includes("timed out") ||
+    msg.includes("server selection")
+  ) {
+    return 503;
+  }
+
   return 500;
 }
 
+/* ---------------- MODELS ---------------- */
 const { Schema } = mongoose;
+
 const User = mongoose.models.User || mongoose.model("User", new Schema({
   name: String,
   email: { type: String, unique: true },
@@ -39,6 +76,12 @@ const Product = mongoose.models.Product || mongoose.model("Product", new Schema(
   imageUrl: String
 }));
 
+const Cart = mongoose.models.Cart || mongoose.model("Cart", new Schema({
+  userId: Schema.Types.ObjectId,
+  items: [{ productId: Schema.Types.ObjectId, quantity: Number }]
+}));
+
+/* ---------------- AUTH ---------------- */
 function signToken(user) {
   return jwt.sign({ sub: user._id, email: user.email }, JWT_SECRET, { expiresIn: "7d" });
 }
@@ -46,6 +89,7 @@ function signToken(user) {
 function auth(req, res, next) {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) return res.status(401).json({ message: "No token" });
+
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     req.userId = decoded.sub;
@@ -55,6 +99,9 @@ function auth(req, res, next) {
   }
 }
 
+/* ---------------- ROUTES ---------------- */
+
+// Register
 app.post("/api/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -66,6 +113,7 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
+// Login
 app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body || {};
@@ -74,58 +122,87 @@ app.post("/api/login", async (req, res) => {
     const ok = await bcrypt.compare(password || "", user.passwordHash);
     if (!ok) return res.status(401).json({ message: "Invalid credentials" });
     res.json({ token: signToken(user) });
-  } catch {
+  } catch (err) {
     res.status(500).json({ message: "Login failed" });
   }
 });
 
+// Products
 app.get("/api/products", async (req, res) => {
   try {
     const { category } = req.query;
     const filter = category ? { category } : {};
     const products = await Product.find(filter).lean();
     res.json({ products });
-  } catch {
-    res.status(500).json({ message: "Failed" });
+  } catch (err) {
+    res.status(clientErrorStatus(err)).json({ message: "Failed" });
   }
 });
 
+// Cart
+app.post("/api/cart", auth, async (req, res) => {
+  try {
+    let cart = await Cart.findOne({ userId: req.userId });
+    if (!cart) cart = await Cart.create({ userId: req.userId, items: [] });
+
+    cart.items.push(req.body);
+    await cart.save();
+
+    res.json({ message: "Added to cart" });
+  } catch (err) {
+    res.status(clientErrorStatus(err)).json({ message: "Cart error" });
+  }
+});
+
+/* ---------------- HEALTH CHECK FIX ---------------- */
 app.get("/api/health", async (req, res) => {
   try {
-    const ping = mongoose.connection.db ? await mongoose.connection.db.admin().ping() : null;
-    res.json({ mongo: mongoose.connection.readyState, ping: !!ping });
+    let ping = null;
+
+    if (mongoose.connection.db) {
+      try {
+        ping = await mongoose.connection.db.admin().ping();
+      } catch {}
+    }
+
+    res.json({
+      mongo: mongoose.connection.readyState,
+      ping: !!ping
+    });
   } catch {
     res.status(503).json({ message: "DB error" });
   }
 });
 
-app.post("/api/cart", auth, async (_req, res) => {
-  res.json({ message: "Added to cart" });
-});
-
-app.post("/api/orders", async (_req, res) => {
-  res.json({ orderId: `GS-${Date.now()}` });
-});
-
+/* ---------------- STATIC ---------------- */
 const PUBLIC_DIR = path.join(__dirname, "public");
 app.use(express.static(PUBLIC_DIR));
 app.use(express.static(__dirname));
-app.get("/", (_req, res) => res.sendFile(path.join(PUBLIC_DIR, "index.html")));
-app.get("/checkout", (_req, res) => res.sendFile(path.join(PUBLIC_DIR, "checkout.html")));
-app.get("/wishlist", (_req, res) => res.sendFile(path.join(PUBLIC_DIR, "wishlist.html")));
+app.get("/", (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, "index.html"));
+});
+app.get("/checkout", (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, "checkout.html"));
+});
+app.get("/wishlist", (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, "wishlist.html"));
+});
 
+/* ---------------- START SERVER ---------------- */
 async function start() {
   try {
     await mongoose.connect(MONGODB_URI);
-    console.log("MongoDB connected");
-  } catch {
-    console.warn("MongoDB not connected. Running in fallback mode.");
+    console.log("✅ MongoDB connected");
+  } catch (err) {
+    console.warn("⚠️ MongoDB NOT connected. Running in fallback mode.");
   }
+
   app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
   });
 }
 
+// For serverless platforms (e.g. Vercel), export app and do not call listen().
 if (require.main === module) {
   start();
 }

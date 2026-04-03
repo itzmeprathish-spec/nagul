@@ -3,25 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wishlist - WaveGadgets</title>
+    <title>Wishlist - NoirStreet</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <header class="topbar">
       <div class="topbar__inner">
-        <a class="brand" href="/"><span class="brand__mark">W</span><span class="brand__text">WaveGadgets</span></a>
+        <a class="brand" href="/"><span class="brand__mark">N</span><span class="brand__text">NoirStreet</span></a>
         <div class="topbar__actions">
           <a class="authButton" href="/">Back to Shop</a>
-          <button class="cartButton" id="openCartBtn" type="button">My Cart <span class="cartButton__badge" id="cartCountBadge">0</span></button>
+          <button class="cartButton" id="openCartBtn" type="button">My Bag <span class="cartButton__badge" id="cartCountBadge">0</span></button>
         </div>
       </div>
     </header>
     <main class="container">
-      <section class="sectionHead"><h2>Your Wishlist</h2><p>Save now, buy anytime.</p></section>
+      <section class="sectionHead">
+        <h2>Your Wishlist</h2>
+        <p>Save today, shop anytime.</p>
+      </section>
       <div class="productGrid" id="wishlistGrid"></div>
       <div class="emptyState" id="wishlistEmpty" hidden>No items in wishlist yet.</div>
     </main>
-    <aside class="drawer" id="cartDrawer"><div class="drawer__overlay" id="cartOverlay"></div><div class="drawer__panel"><div class="drawer__header"><h2>Your Cart</h2><button id="closeCartBtn">✕</button></div><div id="cartItems"></div><div class="drawer__footer"><strong id="cartTotalStrong">₹0</strong><button id="goToCheckoutBtn">Secure Checkout</button></div></div></aside>
+    <aside class="drawer" id="cartDrawer">
+      <div class="drawer__overlay" id="cartOverlay"></div>
+      <div class="drawer__panel">
+        <div class="drawer__header"><h2>Your Bag</h2><button id="closeCartBtn">✕</button></div>
+        <div id="cartItems"></div>
+        <div class="drawer__footer"><strong id="cartTotalStrong">₹0</strong><button id="goToCheckoutBtn">Secure Checkout</button></div>
+      </div>
+    </aside>
     <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
     <script src="/api.js"></script>
     <script src="/cart-ui.js"></script>

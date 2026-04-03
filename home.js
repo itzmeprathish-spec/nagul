@@ -10,13 +10,11 @@ const wishlistCountBadge = document.getElementById("wishlistCountBadge");
 const trendingTrack = document.getElementById("trendingTrack");
 const trendPrev = document.getElementById("trendPrev");
 const trendNext = document.getElementById("trendNext");
-const dealTabs = document.querySelectorAll(".dealTab");
-const shopCatBtns = document.querySelectorAll(".shopCatBtn");
 
 const heroSlides = [
-  "https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?q=80&w=1600&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1545127398-14699f92334b?q=80&w=1600&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1600&auto=format&fit=crop"
+  "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1464863979621-258859e62245?q=80&w=1600&auto=format&fit=crop"
 ];
 let heroIndex = 0;
 let allProducts = [];
@@ -24,6 +22,22 @@ let activeCategory = "All";
 let searchTerm = "";
 let wishlist = new Set(JSON.parse(localStorage.getItem("wishlistIds") || "[]"));
 let trendOffset = 0;
+
+function renderProductSkeleton(count = 8) {
+  if (!productGrid) return;
+  productGrid.innerHTML = "";
+  for (let i = 0; i < count; i += 1) {
+    const el = document.createElement("article");
+    el.className = "productCard skeletonCard";
+    el.innerHTML = `
+      <div class="skeleton skeletonImage"></div>
+      <div class="skeleton skeletonLine"></div>
+      <div class="skeleton skeletonLine short"></div>
+      <div class="skeleton skeletonBtn"></div>
+    `;
+    productGrid.appendChild(el);
+  }
+}
 
 const fetchJSON = window.apiFetch
   ? (url) => window.apiFetch(url)
@@ -55,8 +69,6 @@ function formatINR(price) {
 
 function productCardHtml(p) {
   const price = Number(p.price || 0);
-  const mrp = Number(p.mrp || Math.round(price * 1.8));
-  const off = Math.max(5, Math.round(((mrp - price) / mrp) * 100));
   const rating = Number(p.rating || 4.3).toFixed(1);
   const pid = String(p._id || p.id);
   const liked = wishlist.has(pid);
@@ -66,11 +78,7 @@ function productCardHtml(p) {
       <div class="ratingBadge">⭐ ${rating}</div>
       <button class="wishBtn ${liked ? "is-liked" : ""}" data-wish-product-id="${pid}" type="button">❤</button>
       <h3>${escapeHtml(p.name)}</h3>
-      <p class="priceNow">${formatINR(price)}</p>
-      <div class="priceRow">
-        <span class="priceOld">${formatINR(mrp)}</span>
-        <span class="priceOff">${off}% off</span>
-      </div>
+      <p>${formatINR(price)}</p>
       <button data-add-product-id="${pid}">Add to Bag</button>
     </article>
   `;
@@ -87,20 +95,20 @@ function saveWishlist() {
 
 function normalizeCategory(raw) {
   const v = String(raw || "").trim().toLowerCase();
-  if (v.startsWith("ear") || v.includes("airdop")) return "Earbuds";
-  if (v.startsWith("smart") || v.includes("watch")) return "Smartwatch";
-  if (v.startsWith("speaker") || v.includes("sound")) return "Speakers";
+  if (v.startsWith("men")) return "Men";
+  if (v.startsWith("women") || v.startsWith("woman") || v.startsWith("lad")) return "Women";
+  if (v.startsWith("kid") || v.startsWith("boy") || v.startsWith("girl")) return "Kids";
   return "All";
 }
 
 function fallbackProducts() {
   return [
-    { id: "g1", name: "Airdopes 181 Pro", price: 999, mrp: 4990, category: "Earbuds", rating: 4.7, imageUrl: "https://images.unsplash.com/photo-1588423771073-b8903fbb85b5?q=80&w=900&auto=format&fit=crop" },
-    { id: "g2", name: "Airdopes Prime 701 ANC", price: 1899, mrp: 7990, category: "Earbuds", rating: 4.8, imageUrl: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?q=80&w=900&auto=format&fit=crop" },
-    { id: "g3", name: "Wave Fury Smartwatch", price: 1099, mrp: 6999, category: "Smartwatch", rating: 4.6, imageUrl: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?q=80&w=900&auto=format&fit=crop" },
-    { id: "g4", name: "Storm Call 3", price: 1299, mrp: 8499, category: "Smartwatch", rating: 4.5, imageUrl: "https://images.unsplash.com/photo-1617043786394-f977fa12eddf?q=80&w=900&auto=format&fit=crop" },
-    { id: "g5", name: "Stone 350 Speaker", price: 1399, mrp: 3490, category: "Speakers", rating: 4.7, imageUrl: "https://images.unsplash.com/photo-1589003077984-894e133dabab?q=80&w=900&auto=format&fit=crop" },
-    { id: "g6", name: "PartyPal 65 Pro", price: 4799, mrp: 15999, category: "Speakers", rating: 4.6, imageUrl: "https://images.unsplash.com/photo-1545454675-3531b543be5d?q=80&w=900&auto=format&fit=crop" }
+    { id: "m1", name: "Men Regular Fit Shirt", price: 1299, category: "Men", rating: 4.4, imageUrl: "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=900&auto=format&fit=crop" },
+    { id: "m2", name: "Men Casual Jacket", price: 2499, category: "Men", rating: 4.6, imageUrl: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?q=80&w=900&auto=format&fit=crop" },
+    { id: "w1", name: "Women Elegant Dress", price: 1899, category: "Women", rating: 4.5, imageUrl: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=900&auto=format&fit=crop" },
+    { id: "w2", name: "Women Oversized Hoodie", price: 1599, category: "Women", rating: 4.3, imageUrl: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=900&auto=format&fit=crop" },
+    { id: "k1", name: "Kids Printed Tee", price: 699, category: "Kids", rating: 4.2, imageUrl: "https://images.unsplash.com/photo-1519238367310-5e70f7b8de0b?q=80&w=900&auto=format&fit=crop" },
+    { id: "k2", name: "Kids Party Dress", price: 999, category: "Kids", rating: 4.4, imageUrl: "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=900&auto=format&fit=crop" }
   ];
 }
 
@@ -111,7 +119,7 @@ async function fetchProducts() {
     const mapped = arr.map((p) => ({
       ...p,
       id: p.id || p._id,
-      imageUrl: p.imageUrl || p.image || "https://images.unsplash.com/photo-1517336714739-489689fd1ca8?q=80&w=900&auto=format&fit=crop",
+      imageUrl: p.imageUrl || p.image || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=900&auto=format&fit=crop",
       category: normalizeCategory(p.category),
       rating: p.rating || (3.8 + Math.random())
     }));
@@ -123,9 +131,12 @@ async function fetchProducts() {
 }
 
 function setActiveFilter(category) {
-  navButtons.forEach((btn) => btn.classList.toggle("is-active", btn.dataset.category === category));
-  filterChips.forEach((chip) => chip.classList.toggle("is-active", chip.dataset.category === category));
-  dealTabs.forEach((tab) => tab.classList.toggle("is-active", tab.dataset.tabCategory === category));
+  navButtons.forEach((btn) =>
+    btn.classList.toggle("is-active", btn.dataset.category === category)
+  );
+  filterChips.forEach((chip) =>
+    chip.classList.toggle("is-active", chip.dataset.category === category)
+  );
 }
 
 function filteredProducts() {
@@ -141,10 +152,12 @@ function renderProducts() {
   productGrid.innerHTML = "";
   if (emptyState) emptyState.hidden = true;
   const products = filteredProducts();
+
   if (products.length === 0) {
     if (emptyState) emptyState.hidden = false;
     return;
   }
+
   products.forEach((p) => {
     const el = document.createElement("div");
     el.innerHTML = productCardHtml(p);
@@ -168,24 +181,38 @@ function renderTrending() {
       </article>
     `;
   }).join("");
+
   trendingTrack.style.transform = `translateX(-${trendOffset * 266}px)`;
 }
 
 function wireProductAdd() {
   if (!productGrid) return;
+
   productGrid.addEventListener("click", async (e) => {
     const wishBtn = e.target.closest("[data-wish-product-id]");
     if (wishBtn) {
       const id = String(wishBtn.getAttribute("data-wish-product-id"));
-      if (wishlist.has(id)) wishlist.delete(id); else wishlist.add(id);
+      if (wishlist.has(id)) wishlist.delete(id);
+      else wishlist.add(id);
       saveWishlist();
       renderProducts();
       return;
     }
+
     const btn = e.target.closest("[data-add-product-id]");
     if (!btn) return;
+
     const productId = btn.getAttribute("data-add-product-id");
-    if (window.addToCart) await window.addToCart(productId, 1);
+
+    try {
+      if (window.addToCart) {
+        await window.addToCart(productId, 1);
+      } else {
+        alert("Cart system not loaded");
+      }
+    } catch (err) {
+      console.error(err);
+    }
   });
 
   trendingTrack?.addEventListener("click", async (e) => {
@@ -197,38 +224,32 @@ function wireProductAdd() {
 }
 
 function wireFilters() {
-  filterChips.forEach((chip) => chip.addEventListener("click", () => {
-    activeCategory = chip.dataset.category;
-    setActiveFilter(activeCategory);
-    renderProducts();
-  }));
+  filterChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      activeCategory = chip.dataset.category;
+      setActiveFilter(activeCategory);
+      renderProducts();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
 
-  navButtons.forEach((btn) => btn.addEventListener("click", () => {
-    activeCategory = btn.dataset.category;
-    setActiveFilter(activeCategory);
-    renderProducts();
-  }));
+  navButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      activeCategory = btn.dataset.category;
+      setActiveFilter(activeCategory);
+      renderProducts();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
 
   if (shopNowBtn) {
     shopNowBtn.addEventListener("click", () => {
-      activeCategory = "Earbuds";
-      document.querySelector('[data-category="Earbuds"]')?.click();
+      activeCategory = "Men";
+      const chip = document.querySelector('[data-category="Men"]');
+      chip?.click();
       document.querySelector("main")?.scrollIntoView({ behavior: "smooth" });
     });
   }
-
-  dealTabs.forEach((tab) => tab.addEventListener("click", () => {
-    activeCategory = tab.dataset.tabCategory || "All";
-    setActiveFilter(activeCategory);
-    renderProducts();
-  }));
-
-  shopCatBtns.forEach((btn) => btn.addEventListener("click", () => {
-    activeCategory = btn.dataset.categoryTarget || "All";
-    setActiveFilter(activeCategory);
-    renderProducts();
-    productGrid?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }));
 
   searchInput?.addEventListener("input", (e) => {
     searchTerm = String(e.target.value || "").trim().toLowerCase();
@@ -254,18 +275,23 @@ function wireFilters() {
 }
 
 window.addEventListener("load", async () => {
-  setHeroImage();
-  setInterval(() => {
-    heroIndex = (heroIndex + 1) % heroSlides.length;
+  try {
+    renderProductSkeleton();
     setHeroImage();
-  }, 3500);
-  wireProductAdd();
-  wireFilters();
-  allProducts = await fetchProducts();
-  localStorage.setItem("catalogCache", JSON.stringify(allProducts));
-  window.getProductById = (id) => allProducts.find((p) => String(p.id || p._id) === String(id)) || null;
-  updateWishlistBadge();
-  renderTrending();
-  setActiveFilter("All");
-  renderProducts();
+    setInterval(() => {
+      heroIndex = (heroIndex + 1) % heroSlides.length;
+      setHeroImage();
+    }, 3500);
+    wireProductAdd();
+    wireFilters();
+    allProducts = await fetchProducts();
+    localStorage.setItem("catalogCache", JSON.stringify(allProducts));
+    window.getProductById = (id) => allProducts.find((p) => String(p.id || p._id) === String(id)) || null;
+    updateWishlistBadge();
+    renderTrending();
+    setActiveFilter("All");
+    renderProducts();
+  } catch (err) {
+    console.error("Init error:", err);
+  }
 });
